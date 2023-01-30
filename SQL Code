@@ -1,3 +1,15 @@
+-- The CO2 emission rate in in Metric tonne--
+
+
+To check the total no. of countries in the dataset.
+SELECT count(distinct country) FROM co2emission.co2emission1;
+
+
+To Check the Null values in the table
+SELECT * FROM co2emission.co2emission1
+where country  IS NULL OR `year`  IS NULL OR Total  IS NULL OR Coal IS NULL OR oil IS NULL OR Gas IS NULL OR Cement IS NULL OR Flaring IS NULL OR Other IS NULL OR Per_Capita IS NULL;
+
+
 #1 Fetch the data from table
 SELECT * FROM co2emission.co2emission1;
 
