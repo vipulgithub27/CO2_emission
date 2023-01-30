@@ -1,0 +1,129 @@
+#1 Fetch the data from table
+SELECT * FROM co2emission.co2emission1;
+
+#2 Description of data
+desc co2emission.co2emission1;
+
+#3 CO2 emission of million tonnes(mt) in the countries in year 2001 to 2021
+SELECT * FROM co2emission.co2emission1
+WHERE NOT country ='Global' and `year` BETWEEN 2002 and 2021
+ORDER BY country;
+
+#4 CO2 emission of million tonnes(mt) in India in year 2001 to 2021
+SELECT * FROM co2emission.co2emission1
+WHERE country ='India' and `year` BETWEEN 2002 and 2021
+ORDER BY `year` desc;
+
+#5 Average CO2 emission of million tonnes(mt) in countries in last decade
+SELECT country, round(avg(total),3) as average_CO2_emission
+FROM co2emission.co2emission1
+WHERE `year` BETWEEN 2002 and 2021
+GROUP BY country
+ORDER BY country;
+
+#6 Top 10 countries with highest Average CO2 emission of million tonnes(mt) in last decade
+select country,round(avg(total),3) as average_CO2_emission
+FROM co2emission.co2emission1
+WHERE NOT country='global'
+GROUP BY country
+ORDER BY average_CO2_emission desc
+LIMIT 10;
+
+#7 Yearly CO2 emission globally
+SELECT `year`,round(sum(total),3) as total_CO2emission
+FROM co2emission.co2emission1
+WHERE  NOT country='global'
+GROUP BY `year`
+ORDER BY `year`;
+
+#8 CO2 emission in India from year 2001 to 2021
+SELECT * FROM co2emission.co2emission1
+WHERE  country ='India' and `year` BETWEEN 2002 and 2021;
+     
+ #9 What is the percentage contribution of CO2 through various means in India in year 2021
+SELECT country,total, round((coal/total)*100,3) as coalpercentage,round((cement/total)*100,3) as cementpercentage, round((oil/total)*100,3) as oilpercentage, round((Gas/total)*100,3) as gaspercentage ,round((Flaring/total)*100,3) as Flairingpercentage
+FROM co2emission.co2emission1
+WHERE  country ='India' and `year`= 2021;
+
+#10 What is the percentage contribution of CO2 through various means in top 15 countries by highest co2 emission in year 2021
+SELECT country,`year`,total, round((coal/total)*100,3) as coalpercentage,round((cement/total)*100,3) as cementpercentage, round((oil/total)*100,3) as oilpercentage, round((Gas/total)*100,3) as gaspercentage ,round((Flaring/total)*100,3) as Flairingpercentage
+FROM co2emission.co2emission1
+WHERE NOT country ='global' and `year`= 2021
+ORDER BY total desc
+LIMIT 15;
+
+#11 Find out the rolling percentage of CO2 emission in the countries over the year
+SELECT `year`,country, total,round(avg(total) over (partition by country order by `year` ROWS BETWEEN 1 PRECEDING AND CURRENT ROW),5) as moving_average
+FROM co2emission.co2emission1;
+
+/*  Rolling average or moving average(mean) is a calculation to analyze data by creating series of average of different subset of entire data. 
+It is usually based on time series data.In SQL, we calculate rollling avearge using window function.*/
+
+#12 Find out the rolling average of CO2 emission in India and USA over the year
+SELECT `year`,country, total,round(avg(total) over (partition by country order by `year` ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW),2) as moving_average
+FROM co2emission.co2emission1
+WHERE country in('India', 'USA');
+
+#13 Find out the CO2 emission percentage in year 2020
+SELECT `year`,country,round(Total/(select sum(total) from co2emission.co2emission1 WHERE `year`=2020)*100,3 )as CO2_percentage_emission
+FROM co2emission.co2emission1
+WHERE NOT country='global' and `year`=2020 
+ORDER BY CO2_percentage_emission desc;
+
+#14 Find out the cummulative CO2 emission percentage in year 2020
+WITH Cummulative_percentage as (
+                     SELECT country,`year`,total,
+                     round(CUME_DIST() over(order by total desc)*100,2) as cummulative_distribution_percentage
+                     FROM co2emission.co2emission1
+				     WHERE NOT country='global' and `year` =2020)
+
+#15 what are the top 45% countries which emitted the most CO2 in the world in year 2020
+WITH Cummulative_percentage as (
+                                SELECT country,`year`,total,
+								round(CUME_DIST() over(order by total desc)*100,2) as cummulative_distribution_percentage
+								FROM co2emission.co2emission1
+				                WHERE NOT country='global' and `year` =2020
+                                 ) 
+   SELECT country, cummulative_distribution_percentage
+   FROM Cummulative_percentage
+   WHERE cummulative_distribution_percentage <45;
+
+#16 what is the global CO2 emission throgh various means in year 2021
+SELECT *
+FROM co2emission.co2emission1
+WHERE country ='global' and `year`=2021
+
+#17 which countries has highest co2 emission per capita in year 2021
+SELECT country, max(Per_Capita)
+FROM co2emission.co2emission1
+WHERE `year`=2021;
+
+#18 which year and country has highest co2 emission through coal 
+SELECT `year`,country, max(coal) as highest_CO2_emission_through_coal FROM co2emission.co2emission1;
+
+#19 which year and country has highest co2 emission through cement 
+SELECT `year`,country, max(cement) as highest_CO2_emission_through_cement 
+FROM co2emission.co2emission1;
+
+#20 which year and country has highest co2 emission through oil 
+SELECT `year`,country, max(oil) as highest_CO2_emission_through_oil 
+FROM co2emission.co2emission1;
+
+#21 which year and country has highest co2 emission through gas 
+SELECT `year`,country, max(gas)as highest_CO2_emission_through_gas 
+FROM co2emission.co2emission1;
+
+#22 What are the statistical (max,min,average, No of countries)data of CO2 emission in year 2020
+SELECT max(total) as max_CO2emission, min(total) as min_CO2emission, avg(total) as avg_CO2emission, count(distinct country) as No_of_country
+FROM co2emission.co2emission1
+WHERE `year`=2020;
+
+#23 Give the classification of CO2_emission per capita in India as  high,mid and low over the years from 2001 to 2021
+SELECT country,total,`year`,Per_capita, 
+    CASE when Co2_emission_perCapita = 1 then 'High'
+	when Co2_emission_perCapita = 2 then 'Mid'
+    else 'low'
+    end as CO2_emission_level_perCapita
+FROM (SELECT country,total,`year`,Per_capita,
+      NTILE(3) over(order by Per_capita desc) as Co2_emission_perCapita
+      FROM co2emission.co2emission1 WHERE country ='India') X;
