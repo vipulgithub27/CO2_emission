@@ -107,15 +107,16 @@ Here are examples of SQL queries executed in this project:
    ORDER BY year;
    ```
 
-3. **Percentage Contribution of CO2 by Source (India, 2021)**
-   ```sql
-   SELECT country, total, 
-          ROUND((coal / total) * 100, 3) AS coal_percentage,
-          ROUND((oil / total) * 100, 3) AS oil_percentage,
-          ROUND((gas / total) * 100, 3) AS gas_percentage,
-          ROUND((cement / total) * 100, 3) AS cement_percentage
-   FROM co2emission
-   WHERE country = 'India' AND year = 2021;
+3. **Give the classification of CO2_emission per capita in India as  high,mid and low over the years from 2001 to 2021**
+   ```sql 
+   SELECT country,total,`year`,Per_capita, 
+    CASE when Co2_emission_perCapita = 1 then 'High'
+	  when Co2_emission_perCapita = 2 then 'Mid'
+      else 'low'
+      end as CO2_emission_level_perCapita
+    FROM (SELECT country,total,`year`,Per_capita,
+      NTILE(3) over(order by Per_capita desc) as Co2_emission_perCapita
+      FROM co2emission.co2emission1 WHERE country ='India') X;;
    ```
 
 ---
