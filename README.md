@@ -21,7 +21,7 @@ Welcome to the **CO2 Emission Analysis Project**! This repository showcases a SQ
 
 ## **Introduction**
 
-This project provides an in-depth SQL analysis of global CO2 emissions data over two decades. The analysis identifies trends, top contributors, and growth patterns to facilitate data-driven insights into global and country-specific emissions.
+This project analyzes global CO2 emissions data over two decades to identify trends, top contributors, and emission growth patterns. Using SQL, we explore datasets containing emission statistics by country and source, calculate rolling averages, and classify countries based on per capita emissions.
 
 ---
 
