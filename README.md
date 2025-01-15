@@ -123,8 +123,8 @@ Here are examples of SQL queries executed in this project:
 
 ## **Technologies Used**
 
-- **Database**: PostgreSQL
-- **Query Tool**: pgAdmin4
+- **Database**: MySQL
+- **Query Tool**: mysql workbench
 
 ---
 
